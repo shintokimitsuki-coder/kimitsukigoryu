@@ -26,7 +26,7 @@
         input[type="text"], input[type="date"], select { width: 100%; padding: 12px; background: rgba(10, 18, 28, 0.8); border: 1px solid rgba(212, 175, 55, 0.2); border-radius: 8px; color: #fff; font-size: 14px; outline: none; transition: all 0.3s; }
         input:focus, select:focus { border-color: var(--gold); box-shadow: 0 0 8px rgba(212,175,55,0.3); }
         .gender-selector { display: flex; gap: 10px; margin-bottom: 22px; }
-        .gender-btn { flex: 1; padding: 12px; background: rgba(10, 18, 28, 0.6); border: 1px solid rgba(212,175,55,0.2); border-radius: 8px; color: var(--text-dim); cursor: pointer; font-size: 14px; font-weight: bold; transition: all 0.2s; text-align: center; }
+        .gender-btn { flex: 1; padding: 12px; background: rgba(10, 18, 28, 0.6); border: 1px solid rgba(212, 175, 55, 0.2); border-radius: 8px; color: var(--text-dim); cursor: pointer; font-size: 14px; font-weight: bold; transition: all 0.2s; text-align: center; }
         .gender-btn.active { background: linear-gradient(135deg, var(--dark-gold), var(--gold)); color: #000; border-color: var(--gold); box-shadow: 0 4px 12px rgba(212,175,55,0.2); }
         .submit-btn { width: 100%; padding: 15px; background: linear-gradient(135deg, #bd942a, #ebd07b); border: none; border-radius: 8px; color: #101924; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.4); transition: transform 0.1s, opacity 0.2s; letter-spacing: 1px; }
         .submit-btn:active { transform: scale(0.98); }
@@ -226,10 +226,9 @@
 
         if(!name || !bdayStr) { alert('お名前と生年月日をご入力ください。'); return; }
 
-        // データベースから「推命NAVI」準拠のデータをダイレクト抽出
         let data = PRO_DATABASE[bdayStr];
 
-        // 登録のない生年月日の場合の自動補正ロジック（セーフティネット）
+        // データベースにない日付用のセーフティ
         if (!data) {
             data = {
                 nen_ten: "甲", nen_chi: "辰", star_nen: "正官",
@@ -240,7 +239,7 @@
             };
         }
 
-        // UI表示への反映
+        // UI反映
         document.getElementById('m-nen-ten').innerText = data.nen_ten;
         document.getElementById('m-nen-chi').innerText = data.nen_chi;
         document.getElementById('s-nen').innerText = data.star_nen;
@@ -259,7 +258,7 @@
 
         document.getElementById('card-jishi').style.opacity = (bhour === -1) ? "0.3" : "1";
 
-        // 視覚的グラフの同期描画
+        // グラフ同期
         let maxScore = Math.max(...Object.values(data.gogyo), 1);
         document.getElementById('bar-wood').style.width = `${(data.gogyo['木']/maxScore)*100}%`;
         document.getElementById('bar-fire').style.width = `${(data.gogyo['火']/maxScore)*100}%`;
@@ -273,26 +272,11 @@
         document.getElementById('val-metal').innerText = data.gogyo['金'];
         document.getElementById('val-water').innerText = data.gogyo['水'];
 
-        // 天命テキスト生成
-        document.getElementById('diagnostic-text').innerHTML = `<strong>◆ 【${data.star_getsu}】が司る、あなたの社会的天命</strong><br>${PERSONALITY[data.star_getsu] || '天性の才能を発揮し社会に貢献する性質。'}<br><br>また、精神やプライベットの本質を象徴する日柱の深層には<strong>【${data.star_nichi}】</strong>が鎮座しています。主星の「${data.star_getsu}」と副星の「${data.star_nichi}」が織りなす、あなただけの人生の動線と、それを爆発的に開花させる鍵は下記LINEにて限定公開中です。`;
+        // 文言生成
+        document.getElementById('diagnostic-text').innerHTML = `<strong>◆ 【${data.star_getsu}】が司る、あなたの社会的天命</strong><br>${PERSONALITY[data.star_getsu] || '天性の才能を発揮し社会に貢献する性質。'}<br><br>また、精神やプライベートの本質を象徴する日柱の深層には<strong>【${data.star_nichi}】</strong>が鎮座しています。主星の「${data.star_getsu}」と副星の「${data.star_nichi}」が織りなす、あなただけの人生の動線と、それを爆発的に開花させる鍵は下記LINEにて限定公開中です。`;
 
         const hText = bhour === -1 ? "不明" : `${bhour}時`;
-        document.getElementById('user-profile').innerText = `${name} 様 （${selectedGender==='male'?'男命':'女命'}・${year}年${month}月${day}日 ${hText}生）`;
-
-        document.getElementById('input-view').style.display = 'none';
-        document.getElementById('result-view').style.display = 'block';
-        window.scrollTo(0,0);
-    }
-
-    function backToInput() {
-        document.getElementById('result-view').style.display = 'none';
-        document.getElementById('input-view').style.display = 'block';
-        window.scrollTo(0,0);
-    }
-
-    function triggerLineTransition() {
-        alert('【公式LINEチャットへのシームレス遷移】\n\nここをタップすると、自動的に公式LINEのアカウント画面が開きます。\nユーザーが結果画面のスクリーンショットをそのままチャットへ送信することで、プレミアム個別鑑定へと繋がります。');
-    }
-</script>
-</body>
-</html>
+        
+        // 生年月日分割
+        const p = bdayStr.split('-');
+        document.getElementById('user-profile').innerText = `${name} 様 （${selectedGender==='male'?'男命':'女命'}・${p[0]}年${p[1]}月${
