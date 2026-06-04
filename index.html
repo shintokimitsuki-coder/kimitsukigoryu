@@ -279,4 +279,22 @@
         
         // 生年月日分割
         const p = bdayStr.split('-');
-        document.getElementById('user-profile').innerText = `${name} 様 （${selectedGender==='male'?'男命':'女命'}・${p[0]}年${p[1]}月${
+        document.getElementById('user-profile').innerText = `${name} 様 （${selectedGender==='male'?'男命':'女命'}・${p[0]}年${p[1]}月${p[2]}日 ${hText}生）`;
+
+        document.getElementById('input-view').style.display = 'none';
+        document.getElementById('result-view').style.display = 'block';
+        window.scrollTo(0,0);
+    }
+
+    function backToInput() {
+        document.getElementById('result-view').style.display = 'none';
+        document.getElementById('input-view').style.display = 'block';
+        window.scrollTo(0,0);
+    }
+
+    function triggerLineTransition() {
+        alert('【公式LINEチャットへのシームレス遷移】\n\nここをタップすると、自動的に公式LINEのアカウント画面が開きます。\nユーザーが結果画面のスクリーンショットをそのままチャットへ送信することで、プレミアム個別鑑定へと繋がります。');
+    }
+</script>
+</body>
+</html>
