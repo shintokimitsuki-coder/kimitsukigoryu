@@ -46,12 +46,18 @@
         const date = document.getElementById('birthday').value;
         const [y, m, d] = date.split('-').map(Number);
         
-        let base = new Date(1899, 11, 25).getTime();
-        let target = new Date(y, m-1, d).getTime();
-        let diff = Math.floor((target - base) / (1000*60*60*24)) % 60;
-        if(diff < 0) diff += 60;
+        // 1900年1月1日を「甲子(0)」とした干支計算（150年完全対応）
+        const dateObj = new Date(y, m-1, d);
+        const baseDate = new Date(1900, 0, 1);
+        const diffDays = Math.floor((dateObj - baseDate) / (1000 * 60 * 60 * 24));
+        
+        // 日干インデックス（0:甲, 1:乙... 9:癸）
+        let nikkanIdx = ((diffDays % 10) + 10) % 10;
+        
         const TEN_LIST = ["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"];
-        const nikkan = TEN_LIST[diff % 10];
+        const nikkan = TEN_LIST[nikkanIdx];
+        
+        // ここで先生の「十龍」名称に変換
         const dragonName = TEN_MAP[nikkan];
         const color = COLOR_MAP[nikkan];
 
@@ -62,6 +68,7 @@
         document.getElementById('dragon-orb').style.borderColor = color;
         document.getElementById('dragon-orb').style.color = color;
         
+        // 6つの検証日のみ完全解析、それ以外は神域覚醒モード
         const isMaster = ["1964-05-19","1973-06-29","1976-07-06","2000-09-04","2018-12-16","2024-09-11"].includes(date);
 
         if (isMaster) {
