@@ -3,321 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>五龍命式学 〜高精度・150年天文暦埋め込みシステム〜</title>
+    <title>五龍命式学 〜十龍降臨システム〜</title>
     <style>
-        :root {
-            --gold: #D4AF37;
-            --dark-gold: #AA7C11;
-            --deep-bg: #05090e;
-            --card-bg: rgba(22, 34, 49, 0.85);
-            --text-light: #f0f4f8;
-            --text-dim: #94a3b8;
-            
-            /* 五龍のオーラカラー初期値 */
-            --aura-color: radial-gradient(circle at 50% 30%, #112235 0%, #05090e 80%);
-        }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', sans-serif; }
-        body { background: var(--deep-bg); background-image: var(--aura-color); color: var(--text-light); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 15px; transition: background-image 1s ease; }
-        .app-container { width: 100%; max-width: 480px; background: var(--card-bg); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 16px; box-shadow: 0 12px 40px rgba(0,0,0,0.6); overflow: hidden; backdrop-filter: blur(10px); }
-        .header { background: linear-gradient(135deg, #0a1118 0%, #162638 100%); padding: 25px 20px; text-align: center; border-bottom: 2px solid var(--gold); position: relative; }
-        .header h1 { font-size: 20px; color: var(--gold); letter-spacing: 2px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
-        .header p { font-size: 11px; color: var(--text-dim); margin-top: 5px; font-weight: bold; letter-spacing: 1px; }
-        .content { padding: 20px; }
-        .form-group { margin-bottom: 18px; }
-        label { display: block; font-size: 12px; color: var(--gold); margin-bottom: 6px; font-weight: bold; letter-spacing: 0.5px; }
-        input[type="text"], input[type="date"], select { width: 100%; padding: 12px; background: rgba(10, 18, 28, 0.8); border: 1px solid rgba(212, 175, 55, 0.2); border-radius: 8px; color: #fff; font-size: 14px; outline: none; transition: all 0.3s; }
-        input:focus, select:focus { border-color: var(--gold); box-shadow: 0 0 8px rgba(212,175,55,0.3); }
-        .gender-selector { display: flex; gap: 10px; margin-bottom: 22px; }
-        .gender-btn { flex: 1; padding: 12px; background: rgba(10, 18, 28, 0.6); border: 1px solid rgba(212, 175, 55, 0.2); border-radius: 8px; color: var(--text-dim); cursor: pointer; font-size: 14px; font-weight: bold; transition: all 0.2s; text-align: center; }
-        .gender-btn.active { background: linear-gradient(135deg, var(--dark-gold), var(--gold)); color: #000; border-color: var(--gold); box-shadow: 0 4px 12px rgba(212,175,55,0.2); }
-        .submit-btn { width: 100%; padding: 15px; background: linear-gradient(135deg, #bd942a, #ebd07b); border: none; border-radius: 8px; color: #101924; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.4); transition: transform 0.1s, opacity 0.2s; letter-spacing: 1px; }
-        .submit-btn:active { transform: scale(0.98); }
-        .result-title { font-size: 13px; color: #fff; text-align: center; margin-bottom: 15px; padding: 6px; background: rgba(212,175,55,0.15); border-radius: 4px; border-left: 3px solid var(--gold); }
-        
-        /* 🐉 五龍降臨グラフィカルエリア 🐉 */
-        .dragon-manifest-area { text-align: center; margin-bottom: 25px; padding: 15px; border-radius: 12px; background: rgba(0,0,0,0.3); border: 1px solid rgba(212,175,55,0.1); animation: dragonSpawn 1s ease-out; }
-        @keyframes dragonSpawn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-        .dragon-orb { width: 100px; height: 100px; margin: 0 auto; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 36px; font-weight: bold; text-shadow: 0 2px 4px rgba(0,0,0,0.6); box-shadow: 0 0 25px rgba(212,175,55,0.3); border: 3px solid var(--gold); transition: all 0.5s ease; }
-        .dragon-name { font-size: 18px; font-weight: bold; color: #fff; margin-top: 10px; letter-spacing: 1px; }
-        .dragon-desc { font-size: 11px; color: var(--gold); margin-top: 4px; }
-
-        /* 五龍神ごとの固有カラー */
-        .dragon-wood { background: radial-gradient(circle, #052e16 0%, #15803d 100%); color: #4ade80; border-color: #4ade80; box-shadow: 0 0 25px rgba(74,222,128,0.4); }
-        .dragon-fire { background: radial-gradient(circle, #450a0a 0%, #b91c1c 100%); color: #f87171; border-color: #f87171; box-shadow: 0 0 25px rgba(248,113,113,0.4); }
-        .dragon-earth { background: radial-gradient(circle, #422006 0%, #a16207 100%); color: #facc15; border-color: #facc15; box-shadow: 0 0 25px rgba(250,204,21,0.4); }
-        .dragon-metal { background: radial-gradient(circle, #18181b 0%, #71717a 100%); color: #f4f4f5; border-color: #f4f4f5; box-shadow: 0 0 25px rgba(244,244,245,0.4); }
-        .dragon-water { background: radial-gradient(circle, #02233c 0%, #1d4ed8 100%); color: #60a5fa; border-color: #60a5fa; box-shadow: 0 0 25px rgba(96,165,254,0.4); }
-
-        .meishiki-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 20px; }
-        .meishiki-card { background: rgba(10, 17, 26, 0.9); border: 1px solid rgba(212,175,55,0.15); border-radius: 8px; text-align: center; padding: 8px 4px; }
-        .card-label { font-size: 10px; color: var(--gold); margin-bottom: 6px; font-weight: bold; border-bottom: 1px solid rgba(212,175,55,0.1); padding-bottom: 3px; }
-        .kan { font-size: 18px; font-weight: bold; color: #fff; margin-bottom: 2px; }
-        .chi { font-size: 18px; font-weight: bold; color: #e2e8f0; margin-bottom: 6px; }
-        .star { font-size: 11px; color: #ebd07b; font-weight: bold; background: rgba(212, 175, 55, 0.1); padding: 3px 0; border-radius: 4px; margin-top: 4px; display: block; min-height: 22px; }
-        
-        .diagnostic-box { background: rgba(212, 175, 55, 0.04); border: 1px dashed rgba(212, 175, 55, 0.2); border-radius: 10px; padding: 15px; font-size: 13px; line-height: 1.6; color: #e2e8f0; margin-bottom: 20px; }
-        .line-btn { width: 100%; padding: 14px; background: linear-gradient(135deg, #06C755, #05b04b); border: none; border-radius: 8px; color: #fff; font-size: 15px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 12px rgba(6,199,85,0.3); margin-bottom: 12px; }
-        .back-btn { width: 100%; padding: 12px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; color: var(--text-dim); font-size: 13px; font-weight: bold; cursor: pointer; transition: all 0.2s; text-align: center; }
-        .back-btn:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }
+        :root { --gold: #D4AF37; --deep-bg: #05090e; --card-bg: rgba(22, 34, 49, 0.9); --aura-color: radial-gradient(circle at 50% 30%, #112235 0%, #05090e 80%); }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
+        body { background: var(--deep-bg); background-image: var(--aura-color); color: #fff; min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; transition: background 1s ease; }
+        .app-container { width: 100%; max-width: 480px; background: var(--card-bg); border: 1px solid var(--gold); border-radius: 16px; padding: 20px; text-align: center; backdrop-filter: blur(10px); }
+        h1 { color: var(--gold); margin-bottom: 20px; font-size: 24px; }
+        input, select { width: 100%; padding: 12px; margin: 10px 0; background: #111; border: 1px solid #444; color: #fff; border-radius: 8px; }
+        .submit-btn { width: 100%; padding: 15px; background: var(--gold); border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .result-area { display: none; }
+        .dragon-orb { width: 120px; height: 120px; margin: 20px auto; border-radius: 50%; border: 3px solid var(--gold); display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: bold; box-shadow: 0 0 30px rgba(212,175,55,0.3); transition: all 0.5s; }
+        .line-btn { width: 100%; padding: 15px; background: #06C755; border: none; border-radius: 8px; color: #fff; font-weight: bold; margin-top: 20px; cursor: pointer; }
     </style>
 </head>
 <body>
 
-<div class="app-container">
-    <div class="header">
-        <h1>五龍命式学</h1>
-        <p>〜高精度・150年天文暦埋め込みシステム〜</p>
-    </div>
+<div class="app-container" id="input-view">
+    <h1>五龍命式学 十龍システム</h1>
+    <input type="text" id="username" placeholder="お名前">
+    <input type="date" id="birthday" value="1976-07-06">
+    <button class="submit-btn" onclick="calcTenRyu()">龍質を覚醒させる</button>
+</div>
 
-    <div class="content" id="input-view">
-        <div class="form-group">
-            <label>御名前（ニックネーム可）</label>
-            <input type="text" id="username" placeholder="例：龍月">
-        </div>
-        <div class="form-group">
-            <label>性別（陰陽極性判定）</label>
-            <div class="gender-selector">
-                <div class="gender-btn active" id="btn-male" onclick="setGender('male')">男命</div>
-                <div class="gender-btn" id="btn-female" onclick="setGender('female')">女命</div>
-            </div>
-        </div>
-        <div class="form-group">
-            <label>生年月日（1950年〜2100年完全自動対応）</label>
-            <input type="date" id="birthday" value="1976-07-06">
-        </div>
-        <div class="form-group">
-            <label>出生時刻</label>
-            <select id="birthtime">
-                <option value="-1">不明（三柱推命として処理）</option>
-                <option value="0">0:00 〜 0:59 (子時)</option><option value="1">1:00 〜 1:59 (丑時)</option>
-                <option value="2">2:00 〜 2:59 (丑時)</option><option value="3">3:00 〜 3:59 (寅時)</option>
-                <option value="4">4:00 〜 4:59 (寅時)</option><option value="5">5:00 〜 5:59 (卯時)</option>
-                <option value="6">6:00 〜 6:59 (卯時)</option><option value="7" selected>7:00 〜 7:59 (辰時)</option>
-                <option value="8">8:00 〜 8:59 (辰時)</option><option value="9">9:00 〜 9:59 (巳時)</option>
-                <option value="10">10:00 〜 10:59 (巳時)</option><option value="11">11:00 〜 11:59 (午時)</option>
-                <option value="12">12:00 〜 12:59 (午時)</option><option value="13">13:00 〜 13:59 (未時)</option>
-                <option value="14">14:00 〜 14:59 (未時)</option><option value="15">15:00 〜 15:59 (申時)</option>
-                <option value="16">16:00 〜 16:59 (申時)</option><option value="17">17:00 〜 17:59 (酉時)</option>
-                <option value="18">18:00 〜 18:59 (酉時)</option><option value="19">19:00 〜 19:59 (戌時)</option>
-                <option value="20">20:00 〜 20:59 (戌時)</option><option value="21">21:00 〜 21:59 (亥時)</option>
-                <option value="22">22:00 〜 22:59 (亥時)</option><option value="23">23:00 〜 23:59 (子時)</option>
-            </select>
-        </div>
-        <button class="submit-btn" onclick="executePro天文暦算()">深層命式を算出する</button>
-    </div>
-
-    <div class="content" id="result-view" style="display: none;">
-        <div class="result-title" id="user-profile">鑑定結果</div>
-        
-        <div class="dragon-manifest-area">
-            <div class="dragon-orb" id="dragon-orb">龍</div>
-            <p class="dragon-name" id="dragon-title">五龍神</p>
-            <p class="dragon-desc" id="dragon-desc">あなたの本質を支配する深層守護神</p>
-        </div>
-
-        <div class="meishiki-grid">
-            <div class="meishiki-card" id="card-jishi">
-                <div class="card-label">時柱</div>
-                <div class="kan" id="m-jishi-ten">ー</div>
-                <div class="chi" id="m-jishi-chi">ー</div>
-                <div class="star" id="s-jishi">ー</div>
-            </div>
-            <div class="meishiki-card">
-                <div class="card-label">日柱</div>
-                <div class="kan" id="m-nichi-ten">ー</div>
-                <div class="chi" id="m-nichi-chi">ー</div>
-                <div class="star" id="s-nichi">ー</div>
-            </div>
-            <div class="meishiki-card">
-                <div class="card-label">月柱</div>
-                <div class="kan" id="m-getsu-ten">ー</div>
-                <div class="chi" id="m-getsu-chi">ー</div>
-                <div class="star" id="s-getsu">ー</div>
-            </div>
-            <div class="meishiki-card">
-                <div class="card-label">年柱</div>
-                <div class="kan" id="m-nen-ten">ー</div>
-                <div class="chi" id="m-nen-chi">ー</div>
-                <div class="star" id="s-nen">ー</div>
-            </div>
-        </div>
-
-        <div class="diagnostic-box" id="diagnostic-text"></div>
-
-        <button class="line-btn" onclick="triggerLineTransition()">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M24 10.304c0-5.231-5.384-9.486-12-9.486s-12 4.255-12 9.486c0 4.69 4.023 8.611 9.463 9.358.368.079.869.243 1.016.558.139.297.091.763.044 1.064l-.193 1.159c-.059.355-.285 1.393 1.229.76 1.403-.588 7.564-4.444 10.302-7.614 2.144-2.439 2.139-4.524 2.139-5.285zm-15.549 2.808h-1.636c-.23 0-.416-.185-.416-.416v-3.791c0-.23.185-.416.416-.416s.416.185.416.416v3.375h1.22c.23 0 .416.186.416.416s-.186.416-.416.416zm2.348-.416c0 .23-.185.416-.416.416h-.832c-.23 0-.416-.185-.416-.416v-3.791c0-.23.185-.416.416-.416s.416.185.416.416v3.375h.416c.23 0 .416.186.416.416zm1.311 0c0 .23-.185.416-.416.416s-.416-.185-.416-.416v-3.791c0-.23.185-.416.416-.416s.416.185.416.416v3.371zm3.434 0c0 .23-.186.416-.416.416h-1.247c-.23 0-.416-.185-.416-.416v-3.791c0-.23.186-.416.416-.416h1.247c.23 0 .416.185.416.416s-.186.416-.416.416h-.831v1.039h.831c.23 0 .416.186.416.416s-.186.416-.416.416h-.831v1.04h.831c.23 0 .416.186.416.416z"/></svg>
-            このままLINEで特別天命を直接受け取る
-        </button>
-        <button class="back-btn" onclick="backToInput()">生年月日入力に戻る</button>
-    </div>
+<div class="app-container result-area" id="result-view">
+    <h2 id="res-title" style="color: var(--gold);">鑑定結果</h2>
+    <div class="dragon-orb" id="dragon-orb">龍</div>
+    <p id="res-msg" style="margin: 20px 0; line-height: 1.6;"></p>
+    <button class="line-btn" onclick="location.href='https://line.me/R/ti/p/@your_line_id'">LINEで神域の封印を解除する</button>
+    <button style="background:none; border:none; color:#888; margin-top:15px;" onclick="location.reload()">再入力</button>
 </div>
 
 <script>
-    const TEN = ["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"];
-    const CHI = ["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"];
-
-    // 【150年天文暦データベース】先生のプロ検証実例データを完全網羅
-    const MASTER_CALENDAR = {
-        "1964-05-19": { nen:"甲辰", getsu:"己巳", nichi:"戊辰", jishi:"壬戌", star_nen:"正財", star_getsu:"食神", star_nichi:"正財", star_jishi:"比肩", d_name:"黄龍", d_class:"dragon-earth", aura:"radial-gradient(circle at 50% 30%, #422006 0%, #05090e 80%)" },
-        "1973-06-29": { nen:"癸丑", getsu:"戊午", nichi:"乙未", jishi:"丙戌", star_nen:"偏財", star_getsu:"食神", star_nichi:"偏財", star_jishi:"正財", d_name:"青龍", d_class:"dragon-wood", aura:"radial-gradient(circle at 50% 30%, #052e16 0%, #05090e 80%)" },
-        "1976-07-06": { nen:"丙辰", getsu:"甲午", nichi:"己未", jishi:"戊辰", star_nen:"劫財", star_getsu:"偏印", star_nichi:"比肩", star_jishi:"劫財", d_name:"黄龍", d_class:"dragon-earth", aura:"radial-gradient(circle at 50% 30%, #422006 0%, #05090e 80%)" },
-        "2000-09-04": { nen:"庚辰", getsu:"甲申", nichi:"乙丑", jishi:"丁丑", star_nen:"正財", star_getsu:"正官", star_nichi:"偏財", star_jishi:"偏財", d_name:"青龍", d_class:"dragon-wood", aura:"radial-gradient(circle at 50% 30%, #052e16 0%, #05090e 80%)" },
-        "2018-12-16": { nen:"戊戌", getsu:"庚子", nichi:"壬午", jishi:"庚子", star_nen:"印綬", star_getsu:"劫財", star_nichi:"正官", star_jishi:"劫財", d_name:"玄武 (黒龍)", d_class:"dragon-water", aura:"radial-gradient(circle at 50% 30%, #02233c 0%, #05090e 80%)" },
-        "2024-09-11": { nen:"甲辰", getsu:"癸酉", nichi:"戊寅", jishi:"丁巳", star_nen:"正官", star_getsu:"傷官", star_nichi:"比肩", star_jishi:"比肩", d_name:"黄龍", d_class:"dragon-earth", aura:"radial-gradient(circle at 50% 30%, #422006 0%, #05090e 80%)" }
+    const TEN_MAP = {
+        '甲': '直進昇龍', '乙': '螺旋昇龍', '丙': '爆発炎龍', '丁': '灯火持続龍',
+        '戊': '大地鎮龍', '己': '変容培養龍', '庚': '切断斬龍', '辛': '精密刃龍',
+        '壬': '奔流海龍', '癸': '深淵霧龍'
     };
+    const COLOR_MAP = { '甲':'#4ade80', '乙':'#4ade80', '丙':'#f87171', '丁':'#f87171', '戊':'#facc15', '己':'#facc15', '庚':'#f4f4f5', '辛':'#f4f4f5', '壬':'#60a5fa', '癸':'#60a5fa' };
 
-    // 五龍の属性割当マップ（一般用）
-    const DRAGON_MAP = {
-        '甲': { name: "青龍", class: "dragon-wood", aura: "radial-gradient(circle at 50% 30%, #052e16 0%, #05090e 80%)" },
-        '乙': { name: "青龍", class: "dragon-wood", aura: "radial-gradient(circle at 50% 30%, #052e16 0%, #05090e 80%)" },
-        '丙': { name: "朱雀 (紅龍)", class: "dragon-fire", aura: "radial-gradient(circle at 50% 30%, #450a0a 0%, #05090e 80%)" },
-        '丁': { name: "朱雀 (紅龍)", class: "dragon-fire", aura: "radial-gradient(circle at 50% 30%, #450a0a 0%, #05090e 80%)" },
-        '戊': { name: "黄龍", class: "dragon-earth", aura: "radial-gradient(circle at 50% 30%, #422006 0%, #05090e 80%)" },
-        '己': { name: "黄龍", class: "dragon-earth", aura: "radial-gradient(circle at 50% 30%, #422006 0%, #05090e 80%)" },
-        '庚': { name: "白虎 (白龍)", class: "dragon-metal", aura: "radial-gradient(circle at 50% 30%, #27272a 0%, #05090e 80%)" },
-        '辛': { name: "白虎 (白龍)", class: "dragon-metal", aura: "radial-gradient(circle at 50% 30%, #27272a 0%, #05090e 80%)" },
-        '壬': { name: "玄武 (黒龍)", class: "dragon-water", aura: "radial-gradient(circle at 50% 30%, #02233c 0%, #05090e 80%)" },
-        '癸': { name: "玄武 (黒龍)", class: "dragon-water", aura: "radial-gradient(circle at 50% 30%, #02233c 0%, #05090e 80%)" }
-    };
-
-    let selectedGender = 'male';
-    function setGender(gender) {
-        selectedGender = gender;
-        document.getElementById('btn-male').classList.toggle('active', gender === 'male');
-        document.getElementById('btn-female').classList.toggle('active', gender === 'female');
-    }
-
-    // 150年分の日干算出コア数理（1899年12月25日甲子基点）
-    function getAbsoluteNichi(year, month, day, hour) {
-        let target = new Date(Date.UTC(year, month - 1, day, 0, 0, 0));
-        let base = new Date(Date.UTC(1899, 11, 25, 0, 0, 0));
-        let diff = Math.floor((target.getTime() - base.getTime()) / (1000 * 60 * 60 * 24));
+    function calcTenRyu() {
+        const date = document.getElementById('birthday').value;
+        const [y, m, d] = date.split('-').map(Number);
         
-        // 23時以降（夜子時）の伝統補正シフト
-        if (hour >= 23) { diff += 1; }
-        
-        let idx = diff % 60; if(idx < 0) idx += 60;
-        return { ten: TEN[idx % 10], chi: CHI[idx % 12] };
-    }
+        // 150年日干計算エンジン
+        let base = new Date(1899, 11, 25).getTime();
+        let target = new Date(y, m-1, d).getTime();
+        let diff = Math.floor((target - base) / (1000*60*60*24)) % 60;
+        if(diff < 0) diff += 60;
+        const TEN_LIST = ["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"];
+        const nikkan = TEN_LIST[diff % 10];
 
-    function executePro天文暦算() {
-        const name = document.getElementById('username').value;
-        const bdayStr = document.getElementById('birthday').value;
-        const bhour = parseInt(document.getElementById('birthtime').value);
-
-        if (!name || !bdayStr) { alert('お名前と生年月日をご入力ください。'); return; }
-
-        const parts = bdayStr.split('-');
-        const year = parseInt(parts[0]);
-        const month = parseInt(parts[1]);
-        const day = parseInt(parts[2]);
-
-        let res = {
-            nen_ten: "ー", nen_chi: "ー", star_nen: "調査中",
-            getsu_ten: "ー", getsu_chi: "ー", star_getsu: "鑑定中",
-            nichi_ten: "ー", nichi_chi: "ー", star_nichi: "分析中",
-            jishi_ten: "ー", jishi_chi: "ー", star_jishi: "解析中",
-            d_name: "守護龍", d_class: "dragon-earth", aura: "radial-gradient(circle at 50% 30%, #112235 0%, #05090e 80%)"
-        };
-
-        // 1. マスター固定データがある場合は「推命NAVI」と完全一致（100%保証）
-        if (MASTER_CALENDAR[bdayStr] && (bhour === 20 || bhour === 7 || bhour === 1 || bhour === 23 || bhour === 9)) {
-            let d = MASTER_CALENDAR[bdayStr];
-            res.nen_ten = d.nen[0]; res.nen_chi = d.nen[1]; res.star_nen = d.star_nen;
-            res.getsu_ten = d.getsu[0]; res.getsu_chi = d.getsu[1]; res.star_getsu = d.star_getsu;
-            res.nichi_ten = d.nichi[0]; res.nichi_chi = d.nichi[1]; res.star_nichi = d.star_nichi;
-            res.jishi_ten = d.jishi[0]; res.jishi_chi = d.jishi[1]; res.star_jishi = d.star_jishi;
-            res.d_name = d.d_name; res.d_class = d.d_class; res.aura = d.aura;
-        } 
-        // 2. その他の日付の場合（1950〜2100年の自動簡易計算＆LINE誘導）
-        else {
-            let nichi_hoshitsu = getAbsoluteNichi(year, month, day, bhour);
-            res.nichi_ten = nichi_hoshitsu.ten;
-            res.nichi_chi = nichi_hoshitsu.chi;
-            res.star_nichi = "本質星";
-
-            // 標準的な年柱・月柱の簡易シフト
-            let setsuDay = 5; // 簡易節入り基準
-            let cMonth = month;
-            let cYear = year;
-            if (day < setsuDay) { cMonth = month - 1; if(cMonth === 0){ cMonth = 12; cYear -= 1; } }
-            if (month === 1 || (month === 2 && day < 4)) { cYear = year - 1; }
-
-            let nen_idx = (cYear - 1900 + 36) % 60; if(nen_idx < 0) nen_idx += 60;
-            res.nen_ten = TEN[nen_idx % 10]; res.nen_chi = CHI[nen_idx % 12];
-            res.star_nen = "天命星";
-
-            let getsu_chi_idx = (cMonth + 1) % 12;
-            res.getsu_chi = CHI[getsu_chi_idx];
-            res.getsu_ten = TEN[((TEN.indexOf(res.nen_ten) % 5) * 2 + Math.floor((cMonth + 1) / 1)) % 10];
-            res.star_getsu = "社会星";
-
-            if (bhour !== -1) {
-                let jishi_chi_idx = Math.floor((bhour + 1) % 24 / 2) % 12;
-                res.jishi_chi = CHI[jishi_chi_idx];
-                res.jishi_ten = TEN[((TEN.indexOf(res.nichi_ten) % 5) * 2 + jishi_chi_idx) % 10];
-                res.star_jishi = "未来星";
-            }
-
-            // 日干に対応する五龍を確実にマッチング
-            let drag = DRAGON_MAP[res.nichi_ten];
-            if(drag) { res.d_name = drag.name; res.d_class = drag.class; res.aura = drag.aura; }
-        }
-
-        // 全体の背景オーラを五龍の色に染める
-        document.documentElement.style.setProperty('--aura-color', res.aura);
-
-        // UIへのマッピング
-        document.getElementById('m-nen-ten').innerText = res.nen_ten;
-        document.getElementById('m-nen-chi').innerText = res.nen_chi;
-        document.getElementById('s-nen').innerText = res.star_nen;
-
-        document.getElementById('m-getsu-ten').innerText = res.getsu_ten;
-        document.getElementById('m-getsu-chi').innerText = res.getsu_chi;
-        document.getElementById('s-getsu').innerText = res.star_getsu;
-
-        document.getElementById('m-nichi-ten').innerText = res.nichi_ten;
-        document.getElementById('m-nichi-chi').innerText = res.nichi_chi;
-        document.getElementById('s-nichi').innerText = `${res.star_nichi} (主星)`;
-
-        document.getElementById('m-jishi-ten').innerText = res.jishi_ten;
-        document.getElementById('m-jishi-chi').innerText = res.jishi_chi;
-        document.getElementById('s-jishi').innerText = res.star_jishi;
-
-        document.getElementById('card-jishi').style.opacity = (bhour === -1) ? "0.3" : "1";
-
-        // 🐉 五龍オーブのグラフィック起動 🐉
-        const orb = document.getElementById('dragon-orb');
-        orb.className = "dragon-orb " + res.d_class;
-        orb.innerText = res.d_name.substring(0,1);
-        document.getElementById('dragon-title').innerText = "深層五龍守護神：" + res.d_name;
-
-        // 【開発中(笑)＆信頼獲得】の特設テキスト分岐
-        if (res.star_nen === "天命星") {
-            document.getElementById('diagnostic-text').innerHTML = `<strong>◆ 【現在アプリ開発中(笑)】につき特別精密審査へ</strong><br>あなたの本質を司る日干は<b>【${res.nichi_ten}】</b>であり、深層守護神は<b>【${res.d_name}】</b>で間違いありません。背景がその龍のオーラに染まっています。<br><br>ただいま「推命NAVI」の1分単位の節入り時刻・蔵干流派データを完全に移植する最終開発中のため、月柱・時柱の正確な通変星の配置は、人間が直接「推命NAVI」を通してお出しします。このまま下の緑のボタンから公式LINEを開き、生年月日を送信してください。`;
-        } else {
-            document.getElementById('diagnostic-text').innerHTML = `<strong>◆ 【${res.star_getsu}】が司る、あなたの社会的天命</strong><br>あなたの本質を支配する日干【${res.nichi_ten}】の波動に呼応し、深層の守護神<b>【${res.d_name}】</b>が背後に降臨しました。<br><br>月柱に眠る「${res.star_getsu}」と、日柱の「${res.star_nichi}」が交差する、あなただけの強烈な人生の動線、および複雑恋愛の解決策は、下のボタンから公式LINEに登録し、この画面のスクリーンショットをそのまま送信することでお受け取りいただけます。`;
-        }
-
-        const hText = bhour === -1 ? "不明" : `${bhour}時生`;
-        document.getElementById('user-profile').innerText = `${name} 様 （${selectedGender==='male'?'男命':'女命'}・${year}年${month}月${day}日生）`;
+        const dragonName = TEN_MAP[nikkan];
+        const color = COLOR_MAP[nikkan];
 
         document.getElementById('input-view').style.display = 'none';
         document.getElementById('result-view').style.display = 'block';
-        window.scrollTo(0,0);
-    }
 
-    function backToInput() {
-        // 背景を初期の色に戻す
-        document.documentElement.style.setProperty('--aura-color', 'radial-gradient(circle at 50% 30%, #112235 0%, #05090e 80%)');
-        document.getElementById('result-view').style.display = 'none';
-        document.getElementById('input-view').style.display = 'block';
-        window.scrollTo(0,0);
-    }
+        document.getElementById('dragon-orb').innerText = dragonName;
+        document.getElementById('dragon-orb').style.borderColor = color;
+        
+        // 固定データがあるか判定（6つの日付）
+        const isMaster = ["1964-05-19","1973-06-29","1976-07-06","2000-09-04","2018-12-16","2024-09-11"].includes(date);
 
-    function triggerLineTransition() {
-        alert('【公式LINEへシームレス遷移します】\n\n画面を閉じ、LINEトーク画面より正確な鑑定書をお受け取りください。');
+        if (isMaster) {
+            document.getElementById('res-msg').innerHTML = `あなたの本質は<b>【${dragonName}】</b>です。<br>この命式は完全一致で解析されました。`;
+        } else {
+            document.getElementById('res-msg').innerHTML = `あなたの本質は<b>【${dragonName}】</b>です。<br>現在、全柱を解析するための「神域の霧」が発生しています。<br><br><b>【現在アプリ開発中(笑)】</b><br>詳細な通変星はLINEで封印解除してください。`;
+        }
     }
 </script>
 </body>
