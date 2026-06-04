@@ -40,20 +40,18 @@
         '戊': '大地鎮龍', '己': '変容培養龍', '庚': '切断斬龍', '辛': '精密刃龍',
         '壬': '奔流海龍', '癸': '深淵霧龍'
     };
-    const COLOR_MAP = { '甲':'#4ade80', '乙':'#4ade80', '丙':'#f87171', '丁':'#f87171', '戊':'#facc15', '己':'#facc15', '庚':'#f4f4f5', '辛':'#f4f4f5', '壬':'#60a5fa', '癸':'#60a5fa' };
+    const COLOR_MAP = { '甲': '#4ade80', '乙': '#4ade80', '丙': '#f87171', '丁': '#f87171', '戊': '#facc15', '己': '#facc15', '庚': '#f4f4f5', '辛': '#f4f4f5', '壬': '#60a5fa', '癸': '#60a5fa' };
 
     function calcTenRyu() {
         const date = document.getElementById('birthday').value;
         const [y, m, d] = date.split('-').map(Number);
         
-        // 150年日干計算エンジン
         let base = new Date(1899, 11, 25).getTime();
         let target = new Date(y, m-1, d).getTime();
         let diff = Math.floor((target - base) / (1000*60*60*24)) % 60;
         if(diff < 0) diff += 60;
         const TEN_LIST = ["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"];
         const nikkan = TEN_LIST[diff % 10];
-
         const dragonName = TEN_MAP[nikkan];
         const color = COLOR_MAP[nikkan];
 
@@ -62,8 +60,8 @@
 
         document.getElementById('dragon-orb').innerText = dragonName;
         document.getElementById('dragon-orb').style.borderColor = color;
+        document.getElementById('dragon-orb').style.color = color;
         
-        // 固定データがあるか判定（6つの日付）
         const isMaster = ["1964-05-19","1973-06-29","1976-07-06","2000-09-04","2018-12-16","2024-09-11"].includes(date);
 
         if (isMaster) {
